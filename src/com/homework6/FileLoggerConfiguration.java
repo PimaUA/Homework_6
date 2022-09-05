@@ -54,4 +54,12 @@ public class FileLoggerConfiguration {
                 ", logEntriesFormat=" + logEntriesFormat +
                 '}';
     }
+
+    @Override
+    public void debug(String message) {
+    }
+
+    @Override
+    public void info(String message) {
+    }
 }
