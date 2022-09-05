@@ -1,0 +1,4 @@
+FILE:"src/Log.txt"
+LEVEL:DEBUG
+MAX-SIZE:1000
+FORMAT:30.08.2022-23.19 DEBUG Message-Debug test
