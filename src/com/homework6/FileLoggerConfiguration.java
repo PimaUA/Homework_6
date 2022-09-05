@@ -21,7 +21,7 @@ public class FileLoggerConfiguration {
                 currentLoggingLevel);
     }
 
-    public FileLoggerConfiguration(String newFileName, LoggingLevel currentLoggingLevel,
+    public FileLoggerConfiguration(String newFileName,LoggingLevel currentLoggingLevel,
                                    long maxFileSize, String logEntriesFormat) {
         this.newFileName = newFileName;
         this.currentLoggingLevel = currentLoggingLevel;

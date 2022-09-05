@@ -104,7 +104,7 @@ public class FileLogger implements Logger {
         return lastModifiedFile;
     }
 
-    private long getLastModifiedFileSize(File lastModified) {
+    public long getLastModifiedFileSize(File lastModified) {
         return lastModifiedFileLength = lastModified.length();
     }
 }
