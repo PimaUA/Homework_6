@@ -12,12 +12,15 @@ public class StdoutLogger extends FileLoggerConfiguration implements Logger {
 
     @Override
     public void debug(String debugMessage) {
-        System.out.println(createConsoleLogFormat(LoggingLevel.DEBUG) + debugMessage + '\n');
+        if (currentLoggingLevel.equals(LoggingLevel.DEBUG)){
+        System.out.println(createConsoleLogFormat(LoggingLevel.DEBUG) + debugMessage + '\n');}
     }
 
     @Override
     public void info(String infoMessage) {
-        System.out.println(createConsoleLogFormat(LoggingLevel.INFO) + infoMessage + '\n');
+        if (currentLoggingLevel.equals(LoggingLevel.INFO)
+                || currentLoggingLevel.equals(LoggingLevel.DEBUG)){
+        System.out.println(createConsoleLogFormat(LoggingLevel.INFO) + infoMessage + '\n');}
     }
 
     String createConsoleLogFormat(LoggingLevel currentLoggingLevel) {
