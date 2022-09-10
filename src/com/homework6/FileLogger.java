@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class FileLogger implements Logger {
-
     private String newFileName;
     private final LoggingLevel currentLoggingLevel;
     private final long maxFileSize;
