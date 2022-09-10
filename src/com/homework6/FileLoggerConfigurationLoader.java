@@ -3,11 +3,15 @@ package com.homework6;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
-public class FileLoggerConfigurationLoader extends FileLoggerConfiguration implements Loader {
+public class FileLoggerConfigurationLoader implements Loader {
+    private String newFileName;
+    private LoggingLevel currentLoggingLevel;
+    private long maxFileSize;
+    private String logEntriesFormat;
 
     @Override
-    public FileLoggerConfiguration load() {
-        try (FileReader fr = new FileReader(("src/load_config.txt"));
+    public FileLoggerConfiguration load(String configFileName) {
+        try (FileReader fr = new FileReader((configFileName));
              BufferedReader br = new BufferedReader(fr)) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -26,6 +30,7 @@ public class FileLoggerConfigurationLoader extends FileLoggerConfiguration imple
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new FileLoggerConfiguration(newFileName, currentLoggingLevel, maxFileSize, logEntriesFormat);
+        return new FileLoggerConfiguration(newFileName, currentLoggingLevel,
+                maxFileSize, logEntriesFormat);
     }
 }

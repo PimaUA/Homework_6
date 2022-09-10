@@ -10,17 +10,24 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class FileLogger extends FileLoggerConfiguration implements Logger {
+public class FileLogger implements Logger {
 
-    private static final File dir = (new File("src/logsFolder"));
-    private static final boolean isDirectoryCreated = dir.mkdir();
-    private static File[] files = dir.listFiles();
-    private static long lastModifiedFileLength;
-    private static Path path;
+    private String newFileName;
+    private final LoggingLevel currentLoggingLevel;
+    private final long maxFileSize;
+    private final String logEntriesFormat;
 
-    public FileLogger(LoggingLevel currentLoggingLevel) {
-        super();
-        super.currentLoggingLevel = currentLoggingLevel;
+    private final File dir = (new File("src/logsFolder"));
+    private final boolean isDirectoryCreated = dir.mkdir();
+    private File[] files = dir.listFiles();
+    private long lastModifiedFileLength;
+    private Path path;
+
+    public FileLogger(FileLoggerConfiguration fileLoggerConfiguration) {
+        this.newFileName = fileLoggerConfiguration.getNewFileName();
+        this.currentLoggingLevel = fileLoggerConfiguration.getCurrentLoggingLevel();
+        this.maxFileSize = fileLoggerConfiguration.getMaxFileSize();
+        this.logEntriesFormat = fileLoggerConfiguration.getLogEntriesFormat();
     }
 
     //Main methods
@@ -28,8 +35,9 @@ public class FileLogger extends FileLoggerConfiguration implements Logger {
     public void debug(String debugMessage) {
         getNewFileName();
         path = Paths.get(newFileName);
-        if (currentLoggingLevel.equals(LoggingLevel.DEBUG)){
-        writeLogToFile(path, createFileLogFormat(LoggingLevel.DEBUG) + debugMessage + '\n');}
+        if (currentLoggingLevel.equals(LoggingLevel.DEBUG)) {
+            writeLogToFile(path, logEntriesFormat + debugMessage + '\n');
+        }
     }
 
     @Override
@@ -37,18 +45,21 @@ public class FileLogger extends FileLoggerConfiguration implements Logger {
         getNewFileName();
         path = Paths.get(newFileName);
         if (currentLoggingLevel.equals(LoggingLevel.INFO)
-                || currentLoggingLevel.equals(LoggingLevel.DEBUG)){
-        writeLogToFile(path, createFileLogFormat(LoggingLevel.INFO) + infoMessage + '\n');}
+                || currentLoggingLevel.equals(LoggingLevel.DEBUG)) {
+            writeLogToFile(path, logEntriesFormat + infoMessage + '\n');
+        }
     }
 
     //Auxiliary methods
-    private static void writeLogToFile(Path path, String content) {
+    private void writeLogToFile(Path path, String content) {
         try {
             Files.write(path, content.getBytes(StandardCharsets.UTF_8),
-                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);//}
-
-            if (lastModifiedFileLength >= getMaxFileSize()) {
-                throw new FileMaxSizeReachedException("exception");
+                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            if (lastModifiedFileLength >= maxFileSize) {
+                String exceptionMessage = String.format("Max:%d Current:%d Path:%s",
+                        maxFileSize,
+                        lastModifiedFileLength, path.toAbsolutePath());
+                throw new FileMaxSizeReachedException(exceptionMessage);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -59,38 +70,31 @@ public class FileLogger extends FileLoggerConfiguration implements Logger {
     }
 
     private void getNewFileName() {
-        DateTimeFormatter fileNameTimeFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy HH.mm.ss");
+        DateTimeFormatter fileNameTimeFormat =
+                DateTimeFormatter.ofPattern("dd.MM.yyyy HH.mm.ss");
         LocalDateTime now = LocalDateTime.now();
         String strDate = fileNameTimeFormat.format(now);
         if (isDirectoryCreated && files.length == 0) {
             newFileName = String.format("src/logsFolder/Log_%s.txt", strDate);
             File file = new File(newFileName);
             try {
-                file.createNewFile();                            /*creation of new file at directory at first start*/
+                file.createNewFile();                 /*creation of new file at directory at first start*/
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else if (!isDirectoryCreated && files.length > 0) {
             File lastModifiedFile = getLastModifiedFile(files);
-            if (getLastModifiedFileSize(lastModifiedFile) < getMaxFileSize()) {
-                newFileName = String.format("src/logsFolder/%s",
-                        lastModifiedFile.getName());            /*file name when directory exists and is not empty*/
-            } else if (getLastModifiedFileSize(lastModifiedFile) >= getMaxFileSize()) {
+            if (getLastModifiedFileSize(lastModifiedFile) < maxFileSize) {
+                newFileName = String.format("src/logsFolder/%s",  /* file name when directory*/
+                        lastModifiedFile.getName());              /* exists and is not empty*/
+            } else if (getLastModifiedFileSize(lastModifiedFile) >= maxFileSize) {
                 newFileName = String.format("src/logsFolder/Log_%s.txt",
-                        strDate);                               /*file name when file size exceeded*/
+                        strDate);                             /*file name when file size exceeded*/
             }
         }
     }
 
-    private String createFileLogFormat(LoggingLevel currentLoggingLevel) {
-        DateTimeFormatter fileTimeLogFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-        LocalDateTime now = LocalDateTime.now();
-        String formattedFileTime = fileTimeLogFormat.format(now);
-        return logEntriesFormat = String.format("%s %s Message:", formattedFileTime,
-                currentLoggingLevel);
-    }
-
-    private static File getLastModifiedFile(File[] files) {
+    private File getLastModifiedFile(File[] files) {
         File lastModifiedFile = files[0];
         for (int i = 1; i < files.length; i++) {
             if (lastModifiedFile.lastModified() < files[i].lastModified()) {
@@ -102,14 +106,6 @@ public class FileLogger extends FileLoggerConfiguration implements Logger {
 
     private long getLastModifiedFileSize(File lastModified) {
         return lastModifiedFileLength = lastModified.length();
-    }
-
-    static Path getPath() {
-        return path;
-    }
-
-    static long getLastModifiedFileLength() {
-        return lastModifiedFileLength;
     }
 }
 
