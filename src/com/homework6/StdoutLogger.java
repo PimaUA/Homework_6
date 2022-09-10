@@ -1,34 +1,26 @@
 package com.homework6;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+public class StdoutLogger implements Logger {
+    private final LoggingLevel currentLoggingLevel;
+    private final String logEntriesFormat;
 
-public class StdoutLogger extends FileLoggerConfiguration implements Logger {
-
-    public StdoutLogger(LoggingLevel currentLoggingLevel) {
-        super();
-        super.currentLoggingLevel = currentLoggingLevel;
+    public StdoutLogger(FileLoggerConfiguration fileLoggerConfiguration) {
+        this.currentLoggingLevel = fileLoggerConfiguration.getCurrentLoggingLevel();
+        this.logEntriesFormat = fileLoggerConfiguration.getLogEntriesFormat();
     }
 
     @Override
     public void debug(String debugMessage) {
-        if (currentLoggingLevel.equals(LoggingLevel.DEBUG)){
-        System.out.println(createConsoleLogFormat(LoggingLevel.DEBUG) + debugMessage + '\n');}
+        if (currentLoggingLevel.equals(LoggingLevel.DEBUG)) {
+            System.out.println(logEntriesFormat + debugMessage + '\n');
+        }
     }
 
     @Override
     public void info(String infoMessage) {
         if (currentLoggingLevel.equals(LoggingLevel.INFO)
-                || currentLoggingLevel.equals(LoggingLevel.DEBUG)){
-        System.out.println(createConsoleLogFormat(LoggingLevel.INFO) + infoMessage + '\n');}
+                || currentLoggingLevel.equals(LoggingLevel.DEBUG)) {
+            System.out.println(logEntriesFormat + infoMessage + '\n');
+        }
     }
-
-    String createConsoleLogFormat(LoggingLevel currentLoggingLevel) {
-        DateTimeFormatter fileTimeLogFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-        LocalDateTime now = LocalDateTime.now();
-        String formattedFileTime = fileTimeLogFormat.format(now);
-        return logEntriesFormat = String.format("%s %s Message:", formattedFileTime,
-                currentLoggingLevel);
-    }
-
 }
