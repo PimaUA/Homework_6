@@ -16,7 +16,6 @@ public class FileLogger implements Logger {
     private final LoggingLevel currentLoggingLevel;
     private final long maxFileSize;
     private final String logEntriesFormat;
-
     private final File dir = (new File("src/logsFolder"));
     private final boolean isDirectoryCreated = dir.mkdir();
     private File[] files = dir.listFiles();
