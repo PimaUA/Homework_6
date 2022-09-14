@@ -4,24 +4,27 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class FileLoggerConfiguration {
-    private String newFileName;
+    private final String newFileName;
     private final LoggingLevel currentLoggingLevel;
-    private long maxFileSize;
+    private final long maxFileSize;
     private final String logEntriesFormat;
-    DateTimeFormatter fileTimeLogFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-    LocalDateTime now = LocalDateTime.now();
-    String formattedLogTime = fileTimeLogFormat.format(now);
 
-    public FileLoggerConfiguration(String newFileName, LoggingLevel currentLoggingLevel,
+    public FileLoggerConfiguration(LoggingLevel currentLoggingLevel,
                                    long maxFileSize) {
-        this.newFileName = newFileName;
+        DateTimeFormatter fileTimeLogFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        DateTimeFormatter fileNameTimeFormat =
+                DateTimeFormatter.ofPattern("dd.MM.yyyy HH.mm.ss");
+        LocalDateTime now = LocalDateTime.now();
+        String formattedLogTime = fileTimeLogFormat.format(now);
+        String strDate = fileNameTimeFormat.format(now);
+        this.newFileName = String.format("src/logsFolder/Log_%s.txt", strDate);
         this.currentLoggingLevel = currentLoggingLevel;
         this.maxFileSize = maxFileSize;
         this.logEntriesFormat = String.format("%s %s Message:", formattedLogTime,
                 currentLoggingLevel);
     }
 
-    public FileLoggerConfiguration(String newFileName,LoggingLevel currentLoggingLevel,
+    public FileLoggerConfiguration(String newFileName, LoggingLevel currentLoggingLevel,
                                    long maxFileSize, String logEntriesFormat) {
         this.newFileName = newFileName;
         this.currentLoggingLevel = currentLoggingLevel;
@@ -29,13 +32,7 @@ public class FileLoggerConfiguration {
         this.logEntriesFormat = logEntriesFormat;
     }
 
-    public FileLoggerConfiguration(LoggingLevel currentLoggingLevel) {
-        this.currentLoggingLevel = currentLoggingLevel;
-        this.logEntriesFormat = String.format("%s %s Message:", formattedLogTime,
-                currentLoggingLevel);
-    }
-
-    public String getNewFileName() {
+    public String getPresentNewFileName() {
         return newFileName;
     }
 
