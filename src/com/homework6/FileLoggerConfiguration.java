@@ -4,9 +4,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class FileLoggerConfiguration {
-    private final String newFileName;
+    private String newFileName;
     private final LoggingLevel currentLoggingLevel;
-    private final long maxFileSize;
+    private long maxFileSize;
     private final String logEntriesFormat;
 
     public FileLoggerConfiguration(LoggingLevel currentLoggingLevel,
@@ -30,6 +30,15 @@ public class FileLoggerConfiguration {
         this.currentLoggingLevel = currentLoggingLevel;
         this.maxFileSize = maxFileSize;
         this.logEntriesFormat = logEntriesFormat;
+    }
+
+    public FileLoggerConfiguration(LoggingLevel currentLoggingLevel) {
+        DateTimeFormatter fileTimeLogFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        LocalDateTime now = LocalDateTime.now();
+        String formattedLogTime = fileTimeLogFormat.format(now);
+        this.currentLoggingLevel = currentLoggingLevel;
+        this.logEntriesFormat = String.format("%s %s Message:", formattedLogTime,
+                currentLoggingLevel);
     }
 
     public String getPresentNewFileName() {
