@@ -7,22 +7,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class FileLogger implements Logger {
     private String newFileName;
     private final LoggingLevel currentLoggingLevel;
     private final long maxFileSize;
     private final String logEntriesFormat;
-    private final File dir = (new File("src/logsFolder"));
-    private final boolean isDirectoryCreated = dir.mkdir();
-    private File[] files = dir.listFiles();
     private long lastModifiedFileLength;
-    private Path path;
 
     public FileLogger(FileLoggerConfiguration fileLoggerConfiguration) {
-        this.newFileName = fileLoggerConfiguration.getNewFileName();
+        this.newFileName = fileLoggerConfiguration.getPresentNewFileName();
         this.currentLoggingLevel = fileLoggerConfiguration.getCurrentLoggingLevel();
         this.maxFileSize = fileLoggerConfiguration.getMaxFileSize();
         this.logEntriesFormat = fileLoggerConfiguration.getLogEntriesFormat();
@@ -31,8 +25,7 @@ public class FileLogger implements Logger {
     //Main methods
     @Override
     public void debug(String debugMessage) {
-        getNewFileName();
-        path = Paths.get(newFileName);
+        Path path = getNewFileName();
         if (currentLoggingLevel.equals(LoggingLevel.DEBUG)) {
             writeLogToFile(path, logEntriesFormat + debugMessage + '\n');
         }
@@ -40,8 +33,7 @@ public class FileLogger implements Logger {
 
     @Override
     public void info(String infoMessage) {
-        getNewFileName();
-        path = Paths.get(newFileName);
+        Path path = getNewFileName();
         if (currentLoggingLevel.equals(LoggingLevel.INFO)
                 || currentLoggingLevel.equals(LoggingLevel.DEBUG)) {
             writeLogToFile(path, logEntriesFormat + infoMessage + '\n');
@@ -67,29 +59,27 @@ public class FileLogger implements Logger {
         }
     }
 
-    private void getNewFileName() {
-        DateTimeFormatter fileNameTimeFormat =
-                DateTimeFormatter.ofPattern("dd.MM.yyyy HH.mm.ss");
-        LocalDateTime now = LocalDateTime.now();
-        String strDate = fileNameTimeFormat.format(now);
-        if (isDirectoryCreated && files.length == 0) {
-            newFileName = String.format("src/logsFolder/Log_%s.txt", strDate);
-            File file = new File(newFileName);
-            try {
-                file.createNewFile();                 /*creation of new file at directory at first start*/
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else if (!isDirectoryCreated && files.length > 0) {
-            File lastModifiedFile = getLastModifiedFile(files);
-            if (getLastModifiedFileSize(lastModifiedFile) < maxFileSize) {
-                newFileName = String.format("src/logsFolder/%s",  /* file name when directory*/
-                        lastModifiedFile.getName());              /* exists and is not empty*/
-            } else if (getLastModifiedFileSize(lastModifiedFile) >= maxFileSize) {
-                newFileName = String.format("src/logsFolder/Log_%s.txt",
-                        strDate);                             /*file name when file size exceeded*/
+    private Path getNewFileName() {
+        final File dir = (new File("src/logsFolder"));
+        final boolean isDirectoryCreated = dir.mkdir();       /*creation of new directory at first start*/
+        File[] files = dir.listFiles();
+        if (files != null) {
+            if (isDirectoryCreated && files.length == 0) {
+                File file = new File(newFileName);
+                try {
+                    file.createNewFile();                         /*creation of new file at directory at first start*/
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if (!isDirectoryCreated && files.length > 0) {
+                File lastModifiedFile = getLastModifiedFile(files);
+                if (getLastModifiedFileSize(lastModifiedFile) < maxFileSize) {
+                    newFileName = String.format("src/logsFolder/%s",           /* file name when directory*/
+                            lastModifiedFile.getName());                       /* exists and is not empty*/
+                }
             }
         }
+        return Paths.get(newFileName);
     }
 
     private File getLastModifiedFile(File[] files) {

@@ -9,12 +9,15 @@ public class FileLoggerConfiguration {
     private final long maxFileSize;
     private final String logEntriesFormat;
 
-    public FileLoggerConfiguration(String newFileName, LoggingLevel currentLoggingLevel,
+    public FileLoggerConfiguration(LoggingLevel currentLoggingLevel,
                                    long maxFileSize) {
         DateTimeFormatter fileTimeLogFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        DateTimeFormatter fileNameTimeFormat =
+                DateTimeFormatter.ofPattern("dd.MM.yyyy HH.mm.ss");
         LocalDateTime now = LocalDateTime.now();
         String formattedLogTime = fileTimeLogFormat.format(now);
-        this.newFileName = newFileName;
+        String strDate = fileNameTimeFormat.format(now);
+        this.newFileName = String.format("src/logsFolder/Log_%s.txt", strDate);
         this.currentLoggingLevel = currentLoggingLevel;
         this.maxFileSize = maxFileSize;
         this.logEntriesFormat = String.format("%s %s Message:", formattedLogTime,
@@ -29,7 +32,7 @@ public class FileLoggerConfiguration {
         this.logEntriesFormat = logEntriesFormat;
     }
 
-    public String getNewFileName() {
+    public String getPresentNewFileName() {
         return newFileName;
     }
 
