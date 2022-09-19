@@ -43,9 +43,10 @@ public class FileLogger implements Logger {
     //Auxiliary methods
     private void writeLogToFile(Path path, String content) {
         try {
-            Files.write(path, content.getBytes(StandardCharsets.UTF_8),
-                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-            if (lastModifiedFileLength >= maxFileSize) {
+            if (lastModifiedFileLength < maxFileSize) {
+                Files.write(path, content.getBytes(StandardCharsets.UTF_8),
+                        StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            } else {
                 String exceptionMessage = String.format("Max:%d Current:%d Path:%s",
                         maxFileSize,
                         lastModifiedFileLength, path.toAbsolutePath());
@@ -56,12 +57,20 @@ public class FileLogger implements Logger {
         } catch (FileMaxSizeReachedException e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
+            File file = new File(newFileName);
+            try {
+                file.createNewFile();                         /*creation of new file after exception thrown*/
+            } catch (IOException e2) {
+                e2.printStackTrace();
+            }
         }
     }
 
     private Path getNewFileName() {
-        final File dir = (new File("src/logsFolder"));
-        final boolean isDirectoryCreated = dir.mkdir();       /*creation of new directory at first start*/
+        Path directory = Paths.get(newFileName);
+        String dirPath = directory.getParent().toString();
+        final File dir = (new File(dirPath));
+        final boolean isDirectoryCreated = dir.mkdir();               /*creation of new directory at first start*/
         File[] files = dir.listFiles();
         if (files != null) {
             if (isDirectoryCreated && files.length == 0) {
@@ -76,6 +85,8 @@ public class FileLogger implements Logger {
                 if (getLastModifiedFileSize(lastModifiedFile) < maxFileSize) {
                     newFileName = String.format("src/logsFolder/%s",           /* file name when directory*/
                             lastModifiedFile.getName());                       /* exists and is not empty*/
+                } else if (getLastModifiedFileSize(lastModifiedFile) > maxFileSize) {
+                    return Paths.get(newFileName);                    /*file name when file size limit exceeded*/
                 }
             }
         }
