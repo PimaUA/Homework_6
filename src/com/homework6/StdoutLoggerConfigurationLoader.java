@@ -2,12 +2,14 @@ package com.homework6;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class StdoutLoggerConfigurationLoader implements Loader {
-    private String newFileName;
+    private String pathToFile;
     private LoggingLevel currentLoggingLevel;
     private long maxFileSize;
-    private String logEntriesFormat;
+    private String newFileName;
 
     @Override
     public FileLoggerConfiguration load(String configFileName) {
@@ -16,7 +18,7 @@ public class StdoutLoggerConfigurationLoader implements Loader {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.contains("FILE")) {
-                    newFileName = line.split(":")[1];
+                    pathToFile = line.split(":")[1];
                 } else if (line.contains("LEVEL")) {
                     String level = line.split(":")[1];
                     currentLoggingLevel = LoggingLevel.valueOf(level);
@@ -24,14 +26,18 @@ public class StdoutLoggerConfigurationLoader implements Loader {
                     String temp = line.split(":")[1];
                     maxFileSize = Long.parseLong(temp);
                 } else if (line.contains("FORMAT")) {
-                    logEntriesFormat = line.split(":")[1];
+                    DateTimeFormatter fileNameTimeFormat =
+                            DateTimeFormatter.ofPattern("dd.MM.yyyy HH.mm.ss.SSS");
+                    LocalDateTime now = LocalDateTime.now();
+                    String formattedDate = fileNameTimeFormat.format(now);
+                    newFileName = pathToFile + (line.split(":")[1]) + formattedDate + ".txt";
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        FileLoggerConfiguration configObjectToConsole = new FileLoggerConfiguration(newFileName,
-                currentLoggingLevel, maxFileSize, logEntriesFormat);
+        FileLoggerConfiguration configObjectToConsole = new FileLoggerConfiguration(pathToFile,
+                currentLoggingLevel, maxFileSize, newFileName);
         System.out.println(configObjectToConsole);
         return configObjectToConsole;
     }

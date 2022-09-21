@@ -3,22 +3,39 @@ package com.homework6;
 public class Main {
     
     public static void main(String[] args) {
-        FileLogger logger = new FileLogger(new FileLoggerConfiguration(
-                LoggingLevel.DEBUG, 100));
-        logger.debug("test debug");
-        //logger.info("test info");
-
         FileLoggerConfigurationLoader fileLoggerConfigurationLoader =
                 new FileLoggerConfigurationLoader();
-        FileLoggerConfiguration obj2 =
-                fileLoggerConfigurationLoader.load("src/load_config.txt");
-        //System.out.println(obj2);
+        FileLoggerConfiguration config = fileLoggerConfigurationLoader.load("src/load_config.txt");
+        FileLogger logger = new FileLogger(config);
 
-        StdoutLogger loggerOut = new StdoutLogger(new FileLoggerConfiguration(LoggingLevel.DEBUG));
-        loggerOut.debug("test debug");
-        //loggerOut.info("test info");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.debug("test debug");
+        logger.info("test info");
 
         StdoutLoggerConfigurationLoader stdoutLoggerConfigurationLoader = new StdoutLoggerConfigurationLoader();
-        stdoutLoggerConfigurationLoader.load("src/load_config.txt");
+        FileLoggerConfiguration config2=stdoutLoggerConfigurationLoader.load("src/load_config.txt");
+        StdoutLogger loggerOut = new StdoutLogger(config2);
+        loggerOut.debug("test debug");
+        //loggerOut.info("test info");
     }
 }
